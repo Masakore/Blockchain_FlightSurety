@@ -32,13 +32,15 @@ contract FlightSuretyApp {
 
 	uint8 private constant STATUS_CODE_LATE_OTHER = 50;
 
-	address private contractOwner;          // Account used to deploy contract
+	// Account used to deploy contract
+	address private contractOwner;
 
-	struct Flight {
-	bool isRegistered;
-	uint8 statusCode;
-	uint256 updatedTimestamp;
-	address airline;
+	struct Flight
+	{
+		bool isRegistered;
+		uint8 statusCode;
+		uint256 updatedTimestamp;
+		address airline;
 	}
 
 	mapping (bytes32 => Flight) private flights;
@@ -48,9 +50,6 @@ contract FlightSuretyApp {
 	/*                                       FUNCTION MODIFIERS                                 */
 	/********************************************************************************************/
 
-	// Modifiers help avoid duplication of code. They are typically used to validate something
-	// before a function is allowed to be executed.
-
 	/**
 	* @dev Modifier that requires the "operational" boolean variable to be "true"
 	*      This is used on all state changing functions to pause the contract in
@@ -58,10 +57,8 @@ contract FlightSuretyApp {
 	*/
 	modifier requireIsOperational()
 	{
-		// Modify to call data contract's status
-		require(true, "Contract is currently not operational");
+		require(isOperational() == true, "Contract is currently not operational");
 		_;
-		// All modifiers require an "_" which indicates where the function body will be added
 	}
 
 	/**
@@ -73,15 +70,10 @@ contract FlightSuretyApp {
 		_;
 	}
 
-
 /********************************************************************************************/
 /*                                       CONSTRUCTOR                                        */
 /********************************************************************************************/
 
-/**
-* @dev Contract constructor
-*
-*/
 	constructor(address dataContract)
 	public
   {
@@ -95,10 +87,10 @@ contract FlightSuretyApp {
 
 	function isOperational()
 	public
-	pure
+  view
 	returns (bool)
 	{
-	  return true;  // Modify to call data contract's status
+	  return flightSuretyData.isOperational();
 	}
 
 /********************************************************************************************/
@@ -110,11 +102,9 @@ contract FlightSuretyApp {
 	 * @dev Add an airline to the registration queue
 	 *
 	 */
-	function registerAirline
-	(
-	)
+	function registerAirline(address _airline)
 	external
-	pure
+  requireIsOperational
 	returns (bool success, uint256 votes)
 	{
 	  return (success, 0);
@@ -347,7 +337,8 @@ contract FlightSuretyApp {
 }
 
 contract FlightSuretyData {
-
+  function authorizeContract(address callerContract) external {}
+	function isOperational() public view returns (bool) {}
 }
 
 
