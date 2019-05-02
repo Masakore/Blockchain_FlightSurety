@@ -45,7 +45,6 @@ contract FlightSuretyApp {
 
 	mapping (bytes32 => Flight) private flights;
 
-
 	/********************************************************************************************/
 	/*                                       FUNCTION MODIFIERS                                 */
 	/********************************************************************************************/
@@ -67,6 +66,12 @@ contract FlightSuretyApp {
 	modifier requireContractOwner()
 	{
 		require(msg.sender == contractOwner, "Caller is not contract owner");
+		_;
+	}
+
+	modifier requireFund(address _airline)
+	{
+		require(isFunded(_airline) == true, "Caller, not funded min 10either, is unable to join contract");
 		_;
 	}
 
@@ -93,6 +98,14 @@ contract FlightSuretyApp {
 	  return flightSuretyData.isOperational();
 	}
 
+  function isFunded(address _airline)
+  public
+  view
+  returns (bool)
+  {
+    return flightSuretyData.isFunded(_airline);
+  }
+
 /********************************************************************************************/
 /*                                     SMART CONTRACT FUNCTIONS                             */
 /********************************************************************************************/
@@ -105,8 +118,11 @@ contract FlightSuretyApp {
 	function registerAirline(address _airline)
 	external
   requireIsOperational
+  requireFund(_airline)
 	returns (bool success, uint256 votes)
 	{
+
+	  flightSuretyData.registerAirline(_airline);
 	  return (success, 0);
 	}
 
@@ -339,6 +355,8 @@ contract FlightSuretyApp {
 contract FlightSuretyData {
   function authorizeContract(address callerContract) external {}
 	function isOperational() public view returns (bool) {}
+  function registerAirline(address _airline) external {}
+  function isFunded(address _airline) external view returns (bool) {}
 }
 
 

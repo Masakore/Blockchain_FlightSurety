@@ -37,6 +37,11 @@ contract FlightSuretyData {
 	public
 	{
 	  contractOwner = msg.sender;
+	  airlines[firstAirline] = Airline({
+	                                     isRegistered: true,
+	                                     isFunded: false
+	                                   });
+	  no_of_registered_airlines++;
 	}
 
 /********************************************************************************************/
@@ -126,6 +131,26 @@ contract FlightSuretyData {
     }
     return false;
   }
+
+	function isFunded(address _airline)
+	external
+	isCallerAuthorized
+	returns (bool)
+	{
+		if(airlines[_airline].isFunded == true) {
+		  return true;
+		}
+		return false;
+	}
+
+	function noOfRegisteredAirlines()
+	external
+	view
+	isCallerAuthorized
+	returns (uint256)
+	{
+	  return no_of_registered_airlines;
+	}
 
 /********************************************************************************************/
 /*                                     SMART CONTRACT FUNCTIONS                             */
