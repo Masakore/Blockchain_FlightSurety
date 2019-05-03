@@ -19,11 +19,16 @@ contract FlightSuretyData {
 
   struct Airline {
     bool isRegistered;
-    bool isFunded;
+    uint256 fund;
   }
   mapping(address => Airline) private airlines;
 
   uint256 private no_of_registered_airlines = 0;
+
+	uint256 private balance = 0 ether;
+
+  uint256 private registration_fund = 10 ether;
+
 /********************************************************************************************/
 /*                                       EVENT DEFINITIONS                                  */
 /********************************************************************************************/
@@ -39,7 +44,7 @@ contract FlightSuretyData {
 	  contractOwner = msg.sender;
 	  airlines[firstAirline] = Airline({
 	                                     isRegistered: true,
-	                                     isFunded: false
+	                                     fund: 0
 	                                   });
 	  no_of_registered_airlines++;
 	}
@@ -132,15 +137,23 @@ contract FlightSuretyData {
     return false;
   }
 
-	function isFunded(address _airline)
+	function isEnoughFunded(address _airline)
 	external
 	isCallerAuthorized
 	returns (bool)
 	{
-		if(airlines[_airline].isFunded == true) {
+		if(airlines[_airline].fund >= registration_fund) {
 		  return true;
 		}
 		return false;
+	}
+
+	function test(address _airline)
+	external
+	isCallerAuthorized
+	returns (uint256)
+	{
+	  return airlines[_airline].fund;
 	}
 
 	function noOfRegisteredAirlines()
@@ -169,13 +182,22 @@ contract FlightSuretyData {
 	isCallerAuthorized
 	{
 		airlines[_airline] = Airline({
-	                                      isRegistered: true,
-									                      isFunded: false
+	                                 isRegistered: true,
+									                 fund: 0
 	                               });
 
 		no_of_registered_airlines++;
 	}
 
+	function addAirlineFund(address _airline, uint256 _fund)
+	external
+  payable
+	requireIsOperational
+	isCallerAuthorized
+	{
+	  airlines[_airline].fund = airlines[_airline].fund.add(_fund);
+	  balance = balance.add(_fund);
+	}
 
 	/**
 	 * @dev Buy insurance for a flight

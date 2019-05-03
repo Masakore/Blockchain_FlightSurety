@@ -71,7 +71,7 @@ contract FlightSuretyApp {
 
 	modifier requireFund(address _airline)
 	{
-		require(isFunded(_airline) == true, "Caller, not funded min 10either, is unable to join contract");
+		require(isEnoughFunded(_airline) == true, "Caller, not having funded 10 either, is unable to join contract");
 		_;
 	}
 
@@ -98,12 +98,12 @@ contract FlightSuretyApp {
 	  return flightSuretyData.isOperational();
 	}
 
-  function isFunded(address _airline)
+  function isEnoughFunded(address _airline)
   public
   view
   returns (bool)
   {
-    return flightSuretyData.isFunded(_airline);
+    return flightSuretyData.isEnoughFunded(_airline);
   }
 
 /********************************************************************************************/
@@ -118,14 +118,18 @@ contract FlightSuretyApp {
 	function registerAirline(address _airline)
 	external
   requireIsOperational
-  requireFund(_airline)
-	returns (bool success, uint256 votes)
+  requireFund(msg.sender)
 	{
-
 	  flightSuretyData.registerAirline(_airline);
-	  return (success, 0);
 	}
 
+	function addAirlineFund(address _airline)
+	external
+	payable
+	requireIsOperational
+	{
+		flightSuretyData.addAirlineFund(_airline, msg.value);
+	}
 
 	/**
 	 * @dev Register a future flight for insuring.
@@ -356,7 +360,8 @@ contract FlightSuretyData {
   function authorizeContract(address callerContract) external {}
 	function isOperational() public view returns (bool) {}
   function registerAirline(address _airline) external {}
-  function isFunded(address _airline) external view returns (bool) {}
+  function isEnoughFunded(address _airline) external view returns (bool) {}
+  function addAirlineFund(address _airline, uint256 fund) external payable {}
 }
 
 

@@ -79,22 +79,42 @@ contract('Flight Surety Tests', async (accounts) => {
 
   });
 
-  it('(airline) cannot register an Airline using registerAirline() if it is not funded', async () => {
-   
+
+  it('(airline) can register an Airline using registerAirline() if it is funded with minimum 10 ether', async () => {
+
     // ARRANGE
     let newAirline = accounts[2];
-  
-    // ACT
+
+    // After funding
     try {
-        await config.flightSuretyApp.registerAirline(newAirline, {from: config.firstAirline});
+      await config.flightSuretyApp.addAirlineFund(config.firstAirline, {from: config.firstAirline, value: 20000000000000000000});
+      await config.flightSuretyApp.registerAirline(newAirline, {from: config.firstAirline});
     }
     catch(e) {
-  
+      
     }
-    let result = await config.flightSuretyData.isAirline.call(newAirline, {from: config.flightSuretyApp.address}); 
+
+    let result_after_funding = await config.flightSuretyData.isAirline.call(newAirline, {from: config.flightSuretyApp.address});
+    assert.equal(result_after_funding, true, "Airline should be able to register another airline if it has provided funding");
+
+  });
+
+  it('(airline) cannot register an Airline using registerAirline() if it is not funded', async () => {
   
-    // ASSERT
-    assert.equal(result, false, "Airline should not be able to register another airline if it hasn't provided funding");
+    // ARRANGE
+     let newAirline = accounts[3];
+  
+     // ACT
+     try {
+         await config.flightSuretyApp.registerAirline(newAirline, {from: accounts[2]});
+     }
+     catch(e) {
+         console.log(e);
+     }
+     let result = await config.flightSuretyData.isAirline.call(newAirline, {from: config.flightSuretyApp.address}); 
+  
+     // ASSERT
+     assert.equal(result, false, "Airline should not be able to register another airline if it hasn't provided funding");
   
   });
 
