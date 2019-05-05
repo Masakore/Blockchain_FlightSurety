@@ -45,6 +45,10 @@ contract FlightSuretyApp {
 
 	mapping (bytes32 => Flight) private flights;
 
+  uint private constant FREE_REGISTRATION_LIMIT = 4;
+  mapping (address => address[]) private duplicationCheckForVoteOfNewAirlineRegistration;
+  mapping (address => uint256) private noOfVotesForNewAirline;
+
 	/********************************************************************************************/
 	/*                                       FUNCTION MODIFIERS                                 */
 	/********************************************************************************************/
@@ -106,6 +110,36 @@ contract FlightSuretyApp {
     return flightSuretyData.isEnoughFunded(_airline);
   }
 
+
+  function checkIfAirlineTryToVoteMultipletimes(address _newAirline, address caller)
+  internal
+  returns (bool)
+  {
+    for(uint i=0; i < flightSuretyData.getNoOfRegisteredAirlines(); i++) {
+      if(duplicationCheckForVoteOfNewAirlineRegistration[_newAirline][i] == caller) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+	function storeVoteOfNewAirlineRegistration(address _newAirline, address caller)
+	internal
+	{
+	  duplicationCheckForVoteOfNewAirlineRegistration[_newAirline].push(caller);
+	  noOfVotesForNewAirline[_newAirline] = noOfVotesForNewAirline[_newAirline].add(1);
+	}
+
+  function checkIfHalfOfExistingAirlineAgreeToRegisterNewAirline(address _newAirline, address caller)
+	internal
+	returns (bool)
+	{
+	  if (noOfVotesForNewAirline[_newAirline] >= flightSuretyData.getNoOfRegisteredAirlines().div(2)) {
+      return true;
+	  }
+	  return false;
+	}
+
 /********************************************************************************************/
 /*                                     SMART CONTRACT FUNCTIONS                             */
 /********************************************************************************************/
@@ -120,7 +154,25 @@ contract FlightSuretyApp {
   requireIsOperational
   requireFund(msg.sender)
 	{
-	  flightSuretyData.registerAirline(_airline);
+	  require(flightSuretyData.isAirline(msg.sender) == true, "Only registered airline can call this function");
+	  require(flightSuretyData.isAirline(_airline) == false, "Not allowed to register existing airline");
+
+		uint noOfRegisteredAirlines = flightSuretyData.getNoOfRegisteredAirlines();
+
+		if(noOfRegisteredAirlines >= FREE_REGISTRATION_LIMIT) {
+			require(checkIfAirlineTryToVoteMultipletimes(_airline, msg.sender) == false, "One airline can vote only one time for a new airline registration");
+
+			storeVoteOfNewAirlineRegistration(_airline, msg.sender);
+
+			require(checkIfHalfOfExistingAirlineAgreeToRegisterNewAirline(_airline, msg.sender) == true, "Registration of fifth and subsequent airlines requires multi-party consensus of 50% of registered airlines");
+
+			delete noOfVotesForNewAirline[_airline];
+			delete duplicationCheckForVoteOfNewAirlineRegistration[_airline];
+
+			flightSuretyData.registerAirline(_airline);
+		} else {
+	    flightSuretyData.registerAirline(_airline);
+	  }
 	}
 
 	function addAirlineFund(address _airline)
@@ -362,6 +414,8 @@ contract FlightSuretyData {
   function registerAirline(address _airline) external {}
   function isEnoughFunded(address _airline) external view returns (bool) {}
   function addAirlineFund(address _airline, uint256 fund) external payable {}
+  function isAirline(address _airline) external view returns (bool) {}
+  function getNoOfRegisteredAirlines() external view returns (uint) {}
 }
 
 

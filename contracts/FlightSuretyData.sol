@@ -23,7 +23,7 @@ contract FlightSuretyData {
   }
   mapping(address => Airline) private airlines;
 
-  uint256 private no_of_registered_airlines = 0;
+  uint private no_of_registered_airlines = 0;
 
 	uint256 private balance = 0 ether;
 
@@ -148,7 +148,7 @@ contract FlightSuretyData {
 		return false;
 	}
 
-	function test(address _airline)
+	function getRemainingFund(address _airline)
 	external
 	isCallerAuthorized
 	returns (uint256)
@@ -156,11 +156,11 @@ contract FlightSuretyData {
 	  return airlines[_airline].fund;
 	}
 
-	function noOfRegisteredAirlines()
+	function getNoOfRegisteredAirlines()
 	external
 	view
 	isCallerAuthorized
-	returns (uint256)
+	returns (uint)
 	{
 	  return no_of_registered_airlines;
 	}
@@ -186,7 +186,7 @@ contract FlightSuretyData {
 									                 fund: 0
 	                               });
 
-		no_of_registered_airlines++;
+		no_of_registered_airlines.add(1);
 	}
 
 	function addAirlineFund(address _airline, uint256 _fund)
