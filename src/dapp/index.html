@@ -1,33 +1,73 @@
 <!doctype html>
 <html lang="en">
 
-<head>
+  <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>FlightSurety</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet">
     <link rel="icon" type="image/x-icon" href="favicon.ico">
-</head>
+  </head>
 
-<body>
+  <body>
 
     <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
-        <a class="navbar-brand" href="#">FlightSurety</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault"
-            aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+      <a class="navbar-brand" href="#">FlightSurety</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault"
+        aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
     </nav>
 
     <main class="container">
 
-        <div id="display-wrapper" class="top-20">
-        </div>
-        <div class="row top-20">
-            <label class="form">Flight</label> <input type="text" id="flight-number"> <btn class="btn btn-primary" id="submit-oracle">Submit to Oracles</btn>
-        </div>
+      <div id="display-wrapper" class="top-20">
+      </div>
+
+      <div class="row top-20">
+        <label class="form">Register Airline</label>
+        <input type="text" id="airline-address" placeholder="Airline address here">
+        <btn class="btn btn-primary" id="register-airline">Register</btn>
+      </div>
+
+      <div class="row top-20">
+        <label class="form">Fund registered Airline</label>
+        <select id="airlines"></select>
+        <input type="text" id="airline-fund" placeholder="eth" />
+        <btn class="btn btn-primary" id="fund-registered-airline">Transfer fund</btn>
+      </div>
+
+      <div class="row top-20">
+        <label class="form">Flight:</label>
+        Flight number:<input type="text" id="flight-number">
+        Address:<input type="text" id="flight-address">
+        Timestamp:<input type="text" id="flight-time">
+        <btn class="btn btn-primary" id="submit-oracle">Submit to Oracles</btn>
+      </div>
+
+      <div class="row top-20">
+        <label>Buy Insurance: </label>
+        <select id="passengers"></select>
+        <label>Flight:</label>
+        <select id="flights"></select>
+        <input type="text" id="insurance"/>eth
+        <button class="btn btn-primary" id="buy-insurance">Buy</button>
+      </div>
+
+      <div class="row top-20">
+        <label>Show insurance:</label>
+        Passengers address:<input type="text" id="passenger-address2">
+        <button class="btn btn-primary" id="show-insurance">Show</button>
+      </div>
+
+      <div class="row top-20">
+        <label>Withdraw funds:</label>
+        Passengers address:<input type="text" id="passenger-address">
+        <button class="btn btn-primary" id="withdraw-insurance">Withdraw</button>
+      </div>
+
     </main>
 
-</body>
+  </body>
 
 </html>
