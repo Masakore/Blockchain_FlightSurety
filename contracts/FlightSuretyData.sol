@@ -21,13 +21,29 @@ contract FlightSuretyData {
     bool isRegistered;
     uint256 fund;
   }
+
   mapping(address => Airline) private airlines;
 
   uint private no_of_registered_airlines = 0;
 
-	uint256 private balance = 0 ether;
 
   uint256 private registration_fund = 10 ether;
+
+  struct Passenger {
+    bool isInsured;
+    bool[] isClaimed;
+    uint256[] insuranceAmount;
+    string[] flights;
+  }
+
+  mapping(address => Passenger) private passengers;
+
+  mapping(string => address[]) private flightPassengersMapping;
+
+  // Holds the ether anted by Airline and paid as insurance by passengers
+	uint256 private contractBalance = 0 ether;
+
+  mapping(address => uint256) private insuranceAmount;
 
 /********************************************************************************************/
 /*                                       EVENT DEFINITIONS                                  */
@@ -46,7 +62,7 @@ contract FlightSuretyData {
 	                                     isRegistered: true,
 	                                     fund: 0
 	                                   });
-	  no_of_registered_airlines++;
+	  no_of_registered_airlines = no_of_registered_airlines.add(1);
 	}
 
 /********************************************************************************************/
@@ -186,54 +202,7 @@ contract FlightSuretyData {
 									                 fund: 0
 	                               });
 
-		no_of_registered_airlines.add(1);
-	}
-
-	function addAirlineFund(address _airline, uint256 _fund)
-	external
-  payable
-	requireIsOperational
-	isCallerAuthorized
-	{
-	  airlines[_airline].fund = airlines[_airline].fund.add(_fund);
-	  balance = balance.add(_fund);
-	}
-
-	/**
-	 * @dev Buy insurance for a flight
-	 *
-	 */
-	function buy
-	(
-	)
-	external
-	payable
-	{
-
-	}
-
-	/**
-	 *  @dev Credits payouts to insurees
-	*/
-	function creditInsurees
-	(
-	)
-	external
-	pure
-	{
-	}
-
-
-	/**
-	 *  @dev Transfers eligible payout funds to insuree
-	 *
-	*/
-	function pay
-	(
-	)
-	external
-	pure
-	{
+		no_of_registered_airlines = no_of_registered_airlines.add(1);
 	}
 
 	/**
@@ -241,26 +210,151 @@ contract FlightSuretyData {
 	 *      resulting in insurance payouts, the contract should be self-sustaining
 	 *
 	 */
-	function fund
-	(
-	)
-	public
-	payable
+	function addAirlineFund(address _airline, uint256 _fund)
+	external
+  payable
+	requireIsOperational
+	isCallerAuthorized
 	{
+	  airlines[_airline].fund = airlines[_airline].fund.add(_fund);
+	  contractBalance = contractBalance.add(_fund);
 	}
 
-	function getFlightKey
-	(
-	address airline,
-	string memory flight,
-	uint256 timestamp
-	)
+	/**
+	 * @dev Buy insurance for a flight
+	 *
+	 */
+	function buy(address _passenger, uint _amount, string _flight)
+	external
+	payable
+	requireIsOperational
+	isCallerAuthorized
+	{
+	  //Todo: fix me later. seems have to initialise array by passing size in order to use memory.
+	  // Alternate approach without assigning initial size is to use storage but it's expensive.
+	  // For now, just assign random value that is good enough for testing.
+		string[] memory flights = new string[](3);
+		bool[] memory claimed = new bool[](3);
+		uint256[] memory insurance = new uint[](3);
+
+		if(passengers[_passenger].isInsured == true){
+			isPassengerBoughtInsuranceForTheFlight(_passenger, _flight);
+
+	    // Purchase an insurance for another flight
+			passengers[_passenger].flights.push(_flight);
+			passengers[_passenger].isClaimed.push(false);
+			passengers[_passenger].insuranceAmount.push(_amount);
+		} else {
+	    flights[0] = _flight;
+			claimed[0] = false;
+			insurance[0] = _amount;
+
+			passengers[_passenger] = Passenger({isInsured: true, isClaimed: claimed, insuranceAmount: insurance, flights: flights});
+		}
+
+		// update insurance amount contributed
+		contractBalance = contractBalance.add(_amount);
+		flightPassengersMapping[_flight].push(_passenger);
+	}
+
+  function getFlightIndex(address _passenger, string memory _flight)
+  internal
+  view
+  returns(uint)
+	{
+	  require(passengers[_passenger].flights.length > 0, "This passenger does not purchase any insurance yet");
+	  string[] memory flights = new string[](5);
+	  flights = passengers[_passenger].flights;
+
+	  uint index;
+	  bool isMatched = false;
+
+	  for(uint i = 0; i < flights.length; i++) {
+	    if(uint(keccak256(abi.encodePacked(flights[i]))) == uint(keccak256(abi.encodePacked(_flight)))) {
+	      index = i;
+        isMatched = true;
+	    }
+	  }
+
+	  require(isMatched == true, "There's no matching flight attached with this passenger");
+
+	  return index;
+	}
+
+	function isPassengerBoughtInsuranceForTheFlight(address _passenger, string memory _flight)
+	internal
+	view
+	returns(bool)
+	{
+		require(passengers[_passenger].flights.length > 0, "This passenger does not purchase any insurance yet");
+	  string[] memory flights = new string[](5);
+	  flights = passengers[_passenger].flights;
+
+		for(uint i = 0; i < flights.length; i++) {
+			if(uint(keccak256(abi.encodePacked(flights[i]))) == uint(keccak256(abi.encodePacked(_flight)))) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 *  @dev Transfers eligible payout funds to insuree
+	 *
+	*/
+	function pay(address _passenger)
+	external
+  payable
+  requireIsOperational
+  isCallerAuthorized
+	{
+	  uint256 amount = insuranceAmount[_passenger];
+	  insuranceAmount[_passenger].sub(amount);
+	  _passenger.transfer(amount);
+	}
+
+	function getFlightKey(address airline, string memory flight, uint256 timestamp)
 	pure
 	internal
 	returns (bytes32)
 	{
-	return keccak256(abi.encodePacked(airline, flight, timestamp));
+	  return keccak256(abi.encodePacked(airline, flight, timestamp));
 	}
+
+//  function getInsuranceAmount(address _passenger)
+//  external
+//  view
+//  requireIsOperational
+//  isCallerAuthorized
+//  returns (uint256)
+//  {
+//    return insuranceAmount[_passenger];
+//  }
+
+	function getInsuredPassengers(string _flight)
+	external
+	view
+	requireIsOperational
+	returns(address[])
+	{
+	  return flightPassengersMapping[_flight];
+	}
+
+  function creditInsurees(address _passenger, string _flight)
+  external
+  requireIsOperational
+  isCallerAuthorized
+  {
+    uint index = getFlightIndex(_passenger, _flight);
+
+    if(passengers[_passenger].isClaimed[index] == false) {
+      passengers[_passenger].isClaimed[index] = true;
+      uint256 amount = passengers[_passenger].insuranceAmount[index];
+      insuranceAmount[_passenger] = insuranceAmount[_passenger].add(amount);
+      passengers[_passenger].insuranceAmount[index].sub(amount);
+    }
+  }
 
 	/**
 	* @dev Fallback function for funding smart contract.
@@ -270,7 +364,6 @@ contract FlightSuretyData {
 	external
 	payable
 	{
-	fund();
 	}
 
 

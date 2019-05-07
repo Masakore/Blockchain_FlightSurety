@@ -183,32 +183,29 @@ contract('Flight Surety Tests', async (accounts) => {
     let fourth_newAirline = accounts[4];
     let fifth_newAirline = accounts[6];
   
-    let min_funds = 10000000000000000000;
-  
-  
-    // let result_fifth_airline;
+    let min_funds_to_join_contract = 10000000000000000000;
+
+    let result_fifth_airline_registration = false;
+
     try {
   
       // Needs prior funding in order to call registerAirline()
-      await config.flightSuretyApp.addAirlineFund(second_newAirline, {from: config.firstAirline, value: min_funds});
-
-      let result = await config.flightSuretyData.isAirline.call(second_newAirline, {from: config.flightSuretyApp.address}); 
-      console.log('Secound Airline registered',result);
-  
+      await config.flightSuretyApp.addAirlineFund(second_newAirline, {from: config.firstAirline, value: min_funds_to_join_contract});
+      
       await config.flightSuretyApp.registerAirline(third_newAirline, {from: config.firstAirline});
       await config.flightSuretyApp.registerAirline(fourth_newAirline, {from: config.firstAirline});
-      let result2 = await config.flightSuretyData.isAirline.call(third_newAirline, {from: config.flightSuretyApp.address});
-      console.log('Third Airline registered',result2);
-      
-      let result3 = await config.flightSuretyData.isAirline.call(fourth_newAirline, {from: config.flightSuretyApp.address});
-      console.log('Fourth Airline registered',result3);
-      
       await config.flightSuretyApp.registerAirline(fifth_newAirline, {from: config.firstAirline});
+      
+      let isFourAirlineRegistered = await config.flightSuretyData.getNoOfRegisteredAirlines.call({from: config.flightSuretyApp.address});
+      assert.equal(isFourAirlineRegistered, 4, "four airline should be registred by this point");
+      
+      result_fifth_airline_registration = await config.flightSuretyData.isAirline.call(fifth_newAirline, {from: config.flightSuretyApp.address});
+      
     } catch(e) {
       console.error(e)
     }
-    // assert.equal(result_fifth_airline, true, "fifth airline should be able to be registered at this point(2/4)");
-    assert.equal(true, true, "fifth airline should be able to be registered at this point(2/4)");
+
+    assert.equal(result_fifth_airline_registration, true, "fifth airline should be able to be registered at this point(2/4)");
   
   });
 
