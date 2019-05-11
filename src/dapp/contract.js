@@ -2,6 +2,10 @@ import FlightSuretyApp from '../../build/contracts/FlightSuretyApp.json';
 import Config from './config.json';
 import Web3 from 'web3';
 
+function randomDate(start, end) {
+  return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
+}
+
 export default class Contract {
   constructor(network, callback) {
     let config = Config[network];
@@ -24,11 +28,13 @@ export default class Contract {
 
       let counter = 1;
 
+      console.log("CALLED");
       this.airlines = await this.flightSuretyApp.methods.getRegisteredAirlines().call({ from: self.owner});
+      console.log(this.airlines);
+      console.log("SUCCESS");
 
       if (!this.airlines || !this.airlines.length) {
           alert("There is no airline available");
-
       }
 
       //create 5 passengers

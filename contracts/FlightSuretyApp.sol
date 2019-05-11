@@ -262,6 +262,9 @@ contract FlightSuretyApp {
    flightSuretyData.pay(msg.sender);
  }
 
+ function getRegisteredAirlines() external view returns(address[]) {
+	 return flightSuretyData.getRegisteredAirlines();
+ }
 
 // region ORACLE MANAGEMENT
 
@@ -434,6 +437,7 @@ contract FlightSuretyData {
   function creditInsurees(address _passenger, string _flight) external {}
   function buy(address _passenger, uint _amount, string _flight) external payable {}
   function pay(address _passenger) external payable {}
+  function getRegisteredAirlines() external view returns(address[]) {}
 }
 
 

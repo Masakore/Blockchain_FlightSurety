@@ -23,6 +23,7 @@ contract FlightSuretyData {
   }
 
   mapping(address => Airline) private airlines;
+  address[] private registeredAirlineAddress;
 
   uint private no_of_registered_airlines = 0;
 
@@ -49,7 +50,6 @@ contract FlightSuretyData {
 /*                                       EVENT DEFINITIONS                                  */
 /********************************************************************************************/
 
-
 	/**
 	* @dev Constructor
 	*      The deploying account becomes contractOwner
@@ -63,6 +63,12 @@ contract FlightSuretyData {
 	                                     fund: 0
 	                                   });
 	  no_of_registered_airlines = no_of_registered_airlines.add(1);
+	  registeredAirlineAddress.push(firstAirline);
+
+	  // The following is for testing purpose
+		address dapp_address = 0xf25186B5081Ff5cE73482AD761DB0eB0d25abfBF;
+	  authorizeContract(dapp_address);
+
 	}
 
 /********************************************************************************************/
@@ -129,7 +135,7 @@ contract FlightSuretyData {
 	}
 
   function authorizeContract(address callerContract)
-  external
+  public
   requireContractOwner
   {
     authorizedContracts[callerContract] = 1;
@@ -202,6 +208,7 @@ contract FlightSuretyData {
 									                 fund: 0
 	                               });
 
+	  registeredAirlineAddress.push(_airline);
 		no_of_registered_airlines = no_of_registered_airlines.add(1);
 	}
 
@@ -355,6 +362,16 @@ contract FlightSuretyData {
       passengers[_passenger].insuranceAmount[index].sub(amount);
     }
   }
+
+  function getRegisteredAirlines()
+  external
+  requireIsOperational
+  isCallerAuthorized
+  returns(address[])
+  {
+    return registeredAirlineAddress;
+  }
+
 
 	/**
 	* @dev Fallback function for funding smart contract.
