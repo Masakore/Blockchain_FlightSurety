@@ -31,17 +31,19 @@ import './flightsurety.css';
 
     DOM.elid('register-airline').addEventListener('click', () => {
       let airline = DOM.elid('airline-address').value;
-      contract.registerAirline(airline,(error, result) => {
-        alert("Airline was successfully registered.");
+      contract.registerAirline(airline, (error, result) => {
+        DOM.elid('airline-address').value = "";
+        if (error) {
+          throw Error(error);
+        }
+        displayListAirline(airline, DOM.elid("airlines"));
       });
-      DOM.elid('airline-address').value = "";
-      displayListAirline(airline, DOM.elid("airlines"));
     });
 
     DOM.elid('fund-registered-airline').addEventListener('click', () => {
       let airline = DOM.elid('airlines').value;
       let fund = DOM.elid('airline-fund').value;
-      contract.sendFundToAirline(airline, fund, (error, result) => {
+      contract.addAirlineFund(airline, fund, (error, result) => {
         alert("Airline was successfully funded.");
       });
     });
@@ -56,7 +58,7 @@ import './flightsurety.css';
       });
     });
 
-    DOM.elid('buy').addEventListener('click', () => {
+    DOM.elid('buy-insurance').addEventListener('click', () => {
       let passenger = DOM.elid('passengers').value;
       let flight = DOM.elid('flights').value;
       let insurance = DOM.elid('insurance').value;
@@ -69,7 +71,7 @@ import './flightsurety.css';
       }
     });
 
-    DOM.elid('show').addEventListener('click', () => {
+    DOM.elid('show-insurance').addEventListener('click', () => {
       let passenger = DOM.elid('passenger-address-for-show').value;
       contract.show(passenger, (error, result) => {
         cosnole.log("Show was successful");
@@ -77,7 +79,7 @@ import './flightsurety.css';
       alert(contract.getFunds(passenger));
     });
 
-    DOM.elid('withdraw').addEventListener('click', () => {
+    DOM.elid('withdraw-insurance').addEventListener('click', () => {
       let passenger = DOM.elid('passenger-address-for-withdraw').value;
       contract.pay(passenger, (error, result) => {
         alert("Successed")
