@@ -139,43 +139,6 @@ contract('Flight Surety Tests', async (accounts) => {
   
   });
 
-  // it('(airline) Registration of fifth and subsequent airlines requires multi-party consensus of 50% of registered airlines', async () => {
-  //
-  //   let second_newAirline = accounts[2]; // Already registered in the previous test scenario
-  //   let third_newAirline = accounts[3];
-  //   let fourth_newAirline = accounts[4];
-  //   let fifth_newAirline = accounts[5];
-  //
-  //   // Before voting
-  //   try {
-  //     await config.flightSuretyApp.registerAirline(third_newAirline, {from: config.firstAirline});
-  //     await config.flightSuretyApp.registerAirline(fourth_newAirline, {from: config.firstAirline});
-  //     await config.flightSuretyApp.registerAirline(fifth_newAirline, {from: config.firstAirline});
-  //   }
-  //   catch(e) {
-  //     // require statement seems not to throw error even if a condition does not meet?
-  //   }
-  //   let result_third_airline = await config.flightSuretyData.isAirline.call(third_newAirline, {from: config.flightSuretyApp.address});
-  //   let result_fourth_airline = await config.flightSuretyData.isAirline.call(fourth_newAirline, {from: config.flightSuretyApp.address});
-  //   let result_fifth_airline = await config.flightSuretyData.isAirline.call(fifth_newAirline, {from: config.flightSuretyApp.address});
-  //
-  //   assert.equal(result_third_airline, true, "third airline should be registered without problem");
-  //   assert.equal(result_fourth_airline, true, "forth airline should be registered without problem");
-  //   assert.equal(result_fifth_airline, false, "fifth airline is unable to be registered at this point(1/4)");
-  //
-  //   // Needs prior funding in order to call registerAirline()
-  //   await config.flightSuretyApp.addAirlineFund(second_newAirline, {from: second_newAirline, value: 10000000000000000000});
-  //   await config.flightSuretyApp.addAirlineFund(third_newAirline, {from: third_newAirline, value: 10000000000000000000});
-  //
-  //  
-  //   await config.flightSuretyApp.registerAirline(fifth_newAirline, {from: second_newAirline});
-  //   result_fifth_airline = await config.flightSuretyData.isAirline.call(fifth_newAirline, {from: config.flightSuretyApp.address});
-  //   assert.equal(result_fifth_airline, true, "fifth airline should be able to be registered at this point(2/4)");
-  //
-  //   // Todo delete later
-  //   //console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! fifth: ',await config.flightSuretyData.getNoOfRegisteredAirlines.call(fifth_newAirline, {from: config.flightSuretyApp.address}));
-  // });
-
   it('(airline) Registration of fifth and subsequent airlines requires multi-party consensus of 50% of registered airlines', async () => {
   
     let second_newAirline = accounts[2]; // Already registered in the previous test scenario
@@ -194,10 +157,12 @@ contract('Flight Surety Tests', async (accounts) => {
       
       await config.flightSuretyApp.registerAirline(third_newAirline, {from: config.firstAirline});
       await config.flightSuretyApp.registerAirline(fourth_newAirline, {from: config.firstAirline});
-      await config.flightSuretyApp.registerAirline(fifth_newAirline, {from: config.firstAirline});
       
       let isFourAirlineRegistered = await config.flightSuretyData.getNoOfRegisteredAirlines.call({from: config.flightSuretyApp.address});
       assert.equal(isFourAirlineRegistered, 4, "four airline should be registred by this point");
+
+      await config.flightSuretyApp.registerAirline(fifth_newAirline, {from: config.firstAirline});
+      await config.flightSuretyApp.registerAirline(fifth_newAirline, {from: second_newAirline});
       
       result_fifth_airline_registration = await config.flightSuretyData.isAirline.call(fifth_newAirline, {from: config.flightSuretyApp.address});
       
@@ -206,7 +171,6 @@ contract('Flight Surety Tests', async (accounts) => {
     }
 
     assert.equal(result_fifth_airline_registration, true, "fifth airline should be able to be registered at this point(2/4)");
-  
   });
 
 });
