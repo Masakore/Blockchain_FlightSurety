@@ -25,44 +25,62 @@
       </div>
 
       <div class="row top-20">
+        <h2>Airlines</h2>
+      </div>
+
+      <div class="row top-20">
         <label class="form">Register Airline</label>
-        <input type="text" id="airline-address" placeholder="Airline address here">
+        <input type="text" id="airline-address" placeholder="Airline address here"><br>
         <btn class="btn btn-primary" id="register-airline">Register</btn>
       </div>
 
       <div class="row top-20">
-        <label class="form">Fund registered Airline</label>
+        <label class="form">Fund registered airline</label>
         <select id="airlines"></select>
         <input type="text" id="airline-fund" placeholder="eth" />
         <btn class="btn btn-primary" id="fund-registered-airline">Transfer fund</btn>
       </div>
 
       <div class="row top-20">
-        <label class="form">Flight:</label>
-        Flight number:<input type="text" id="flight-number">
-        Address:<input type="text" id="flight-address">
-        Timestamp:<input type="text" id="flight-time">
+        <h2>Flights</h2>
+      </div>
+
+      <div class="row top-20">
+        <label class="right-5">Flight number:</label><input type="text" id="flight-number">
+        <label class="right-5">Address:</label><input type="text" id="flight-address">
+        <label class="right-5">Timestamp:</label><input type="text" id="flight-time">
         <btn class="btn btn-primary" id="submit-oracle">Submit to Oracles</btn>
       </div>
 
       <div class="row top-20">
-        <label>Buy Insurance:</label>
-        <select id="passengers"></select>
-        <label>Flight:</label>
-        <select id="flights"></select>
-        <input type="text" id="insurance"/>eth
-        <button class="btn btn-primary" id="buy-insurance">Buy</button>
+        <h2>Insurance</h2>
+      </div>
+
+      <div class="top-20">
+        <div class="row top-5">
+          <label class="right-5">Passenger:</label>
+          <select id="passengers"></select>
+        </div>
+
+        <div class="row top-5">
+          <label class="right-5">Flight:</label>
+          <select id="flights" ></select>
+        </div>
+
+        <div class="row top-5">
+          <label class="right-5">How much:</label>
+          <input type="text" id="insurance" placeholder="eth"/>
+          <button class="btn btn-primary" id="buy-insurance">Buy</button>
+        </div>
       </div>
 
       <div class="row top-20">
-        <label>Show insurance:</label>
-        Passengers address:<input type="text" id="passenger-address-for-show">
+        <label class="right-5">Passengers address:</label><input type="text" id="passenger-address-for-show">
         <button class="btn btn-primary" id="show-insurance">Show</button>
       </div>
 
       <div class="row top-20">
-        <label>Withdraw Insurance:</label>
-        Passengers address:<input type="text" id="passenger-address-for-withdraw">
+        <label class="right-5">Passengers address:</label><input type="text" id="passenger-address-for-withdraw">
         <button class="btn btn-primary" id="withdraw-insurance">Withdraw</button>
       </div>
 

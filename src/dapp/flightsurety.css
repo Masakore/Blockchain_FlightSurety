@@ -16,6 +16,14 @@ body {
     margin-top: 20px;
 }
 
+.top-5 {
+    margin-top: 5px;
+}
+
+.right-5 {
+    padding-right: 5px;
+}
+
 h5 {
     color: #999999;
 }
