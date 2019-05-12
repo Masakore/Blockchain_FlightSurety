@@ -11,27 +11,22 @@ export default class Contract {
     let config = Config[network];
     this.web3 = new Web3(new Web3.providers.HttpProvider(config.url));
     this.flightSuretyApp = new this.web3.eth.Contract(FlightSuretyApp.abi, config.appAddress);
-    this.initialize(callback);
     this.owner = null;
     this.airlines = [];
     this.flights = [];
     this.passengers = [];
+    this.initialize(callback);
   }
   
   initialize(callback) {
     this.web3.eth.getAccounts(async (error, accts) => {
-      console.log(error);
       let account = accts[0];
-      console.log(account);
 
       this.owner = account;
 
       let counter = 1;
 
-      console.log("CALLED");
       this.airlines = await this.flightSuretyApp.methods.getRegisteredAirlines().call({ from: self.owner});
-      console.log(this.airlines);
-      console.log("SUCCESS");
 
       if (!this.airlines || !this.airlines.length) {
           alert("There is no airline available");
@@ -58,6 +53,21 @@ export default class Contract {
     });
   }
 
+  async registerAirline(airline, callback){
+    let self = this;
+    await self.flightSuretyApp.methods.registerAirline(airline).call({from: this.owner}, (error, result) => {
+      callback(error, result);
+  });
+  }
+
+  async addAirlineFund(airline,funds, callback){
+    let self = this;
+    let amount = self.web3.utils.toWei(funds, "ether").toString();
+    await self.flightSuretyApp.methods.addAirlineFund(airline).send(
+      { from: self.owner, value:amount}, (error, result) => { callback(error, result);}
+  );
+  }
+
   async buy(passenger, insurance, flight, callback){
     let self = this;
     let amount = self.web3.utils.toWei(insurance);
@@ -72,7 +82,6 @@ export default class Contract {
     self.funds = await self.flightSuretyApp.methods.getPassengersInsurance().call({from: passenger});
   }
 
-
   async pay(passenger, callback){
     let self = this;
     let passengerCurrentFund = this.getFunds(passenger);
@@ -84,20 +93,6 @@ export default class Contract {
           console.log(result);
         callback(result);
       }
-    });
-  }
-
-  async registerAirline(airline, callback){
-    let self = this;
-    await self.flightSuretyApp.methods.registerAirline(airline).send({ from: self.owner}, (error, result) => {
-      callback(error, result);
-    });
-  }
-
-  async sendFundToAirline(airline,funds, callback){
-    let self = this; let amount = self.web3.utils.toWei(funds, "ether").toString(); 
-    await self.flightSuretyApp.methods.sendFundToAirline(airline).send(
-      { from: self.owner, value:amount}, (error, result) => { callback(error, result);
     });
   }
 
