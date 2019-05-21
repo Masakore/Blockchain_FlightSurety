@@ -15,6 +15,7 @@ import './flightsurety.css';
 
       contract.flights.forEach(flight => {
         displayList(flight, DOM.elid("flights"));
+        displayList(flight, DOM.elid("flights-for-oracle-request"));
       });
 
       contract.airlines.forEach(airline => {
