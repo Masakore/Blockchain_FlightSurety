@@ -50,12 +50,18 @@ import './flightsurety.css';
     });
 
     DOM.elid('submit-oracle').addEventListener('click', () => {
-      let flight = DOM.elid('flight-number').value;
-      let address = DOM.elid('flight-address').value;
-      let time = DOM.elid('flight-time').value;
-      // Write transaction
-      contract.fetchFlightStatus({address: address, flight: flight, time: time}, (error, result) => {
-        display('Oracles', 'Trigger oracles', [ { label: 'Fetch Flight Status', error: error, value: result.flight + ' was succesfully submitted.'} ]);
+      let selectedFlight = DOM.elid('flights-for-oracle-request').value;
+      contract.flights.forEach(flight => {
+        if(selectedFlight.includes(flight.flight)) {
+          let address = flight.airline;
+          let flight_no = flight.flight;
+          let time = Math.floor(new Date(flight.timestamp).getTime() / 1000);
+
+          // Write transaction
+          contract.fetchFlightStatus({address: address, flight: flight_no, time: time}, (error, result) => {
+            display('Oracles', 'Trigger oracles', [ { label: 'Fetch Flight Status', error: error, value: result.flight + ' was succesfully submitted.'} ]);
+          });
+        }
       });
     });
 

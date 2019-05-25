@@ -215,7 +215,7 @@ contract FlightSuretyApp {
 	requireIsOperational
 	{
 	  bytes32 key = getFlightKey(_airline, _flight, _timestamp);
-	  require(flights[key].isRegistered == true, "This flight does not exist");
+	  require(flights[key].isRegistered == false, "This flight does not exist");
 
 	  if (_statusCode == STATUS_CODE_LATE_AIRLINE) {
 	    address[] memory insuredPassengers = flightSuretyData.getInsuredPassengers(_flight);
