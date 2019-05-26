@@ -260,7 +260,7 @@ contract FlightSuretyData {
 		}
 
 		// update insurance amount contributed
-		contractBalance = contractBalance.add(_amount);
+   	contractBalance = contractBalance.add(_amount);
 		flightPassengersMapping[_flight].push(_passenger);
 	}
 
@@ -317,7 +317,8 @@ contract FlightSuretyData {
   isCallerAuthorized
 	{
 	  uint256 amount = insuranceAmount[_passenger];
-	  insuranceAmount[_passenger].sub(amount);
+	  insuranceAmount[_passenger] = insuranceAmount[_passenger].sub(amount);
+	  contractBalance = contractBalance.sub(amount);
 	  _passenger.transfer(amount);
 	}
 
@@ -358,7 +359,7 @@ contract FlightSuretyData {
     if(passengers[_passenger].isClaimed[index] == false) {
       passengers[_passenger].isClaimed[index] = true;
       uint256 amount = passengers[_passenger].insuranceAmount[index];
-      insuranceAmount[_passenger] = insuranceAmount[_passenger].add(amount);
+      insuranceAmount[_passenger] = insuranceAmount[_passenger].mul(15).div(10); // Pay 1.5 times of insurance
       passengers[_passenger].insuranceAmount[index].sub(amount);
     }
   }
